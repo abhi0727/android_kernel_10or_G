@@ -1,0 +1,20 @@
+--- drivers/usb/gadget/android.c
++++ drivers/usb/gadget/android.c
+@@ -69,6 +69,9 @@
+ #include "u_qc_ether.c"
+ #include "f_gsi.c"
+ #include "f_mass_storage.h"
++#include "f_hid.h"
++#include "f_hid_android_keyboard.c"
++#include "f_hid_android_mouse.c"
+ 
+ USB_ETHERNET_MODULE_PARAMETERS();
+ #include "debug.h"
+@@ -3093,6 +3132,7 @@ static struct android_usb_function *default_functions[] = {
+ #ifdef CONFIG_SND_RAWMIDI
+ 	&midi_function,
+ #endif
++	&hid_function,
+ 	NULL
+ };
+ 
