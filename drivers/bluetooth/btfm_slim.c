@@ -509,7 +509,6 @@ static int btfm_slim_remove(struct slim_device *slim)
 	BTFMSLIM_DBG("");
 	mutex_destroy(&btfm_slim->io_lock);
 	mutex_destroy(&btfm_slim->xfer_lock);
-	kfree(btfm_slim);
 	snd_soc_unregister_codec(&slim->dev);
 
 	BTFMSLIM_DBG("slim_remove_device() - btfm_slim->slim_ifd");
@@ -517,6 +516,8 @@ static int btfm_slim_remove(struct slim_device *slim)
 
 	BTFMSLIM_DBG("slim_remove_device() - btfm_slim->slim_pgd");
 	slim_remove_device(slim);
+
+	kfree(btfm_slim);
 	return 0;
 }
 

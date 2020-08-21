@@ -528,6 +528,11 @@ static int32_t msm_actuator_piezo_move_focus(
 		return -EFAULT;
 	}
 
+	if (dest_step_position > a_ctrl->total_steps) {
+		pr_err("Step pos greater than total steps = %d\n",
+			dest_step_position);
+		return -EFAULT;
+	}
 	a_ctrl->i2c_tbl_index = 0;
 	a_ctrl->func_tbl->actuator_parse_i2c_params(a_ctrl,
 		(num_steps *
@@ -567,8 +572,11 @@ static int32_t msm_actuator_move_focus(
 
 	CDBG("called, dir %d, num_steps %d\n", dir, num_steps);
 
-	if (dest_step_pos == a_ctrl->curr_step_pos)
-		return rc;
+        if ((dest_step_pos == a_ctrl->curr_step_pos) ||
+                ((dest_step_pos <= a_ctrl->total_steps) &&
+                     (a_ctrl->step_position_table[dest_step_pos] ==
+                          a_ctrl->step_position_table[a_ctrl->curr_step_pos])))
+                return rc;
 
 	if ((sign_dir > MSM_ACTUATOR_MOVE_SIGNED_NEAR) ||
 		(sign_dir < MSM_ACTUATOR_MOVE_SIGNED_FAR)) {
@@ -1079,14 +1087,16 @@ static int32_t msm_actuator_power_down(struct msm_actuator_ctrl_t *a_ctrl)
 
 	CDBG("Enter\n");
 	if (a_ctrl->actuator_state != ACT_DISABLE_STATE) {
-
+		#ifdef CONFIG_HQ_ZQL1590_ACTUATOR
+				CDBG("no actuator_park_lens\n");			
+		#else 
 		if (a_ctrl->func_tbl && a_ctrl->func_tbl->actuator_park_lens) {
 			rc = a_ctrl->func_tbl->actuator_park_lens(a_ctrl);
 			if (rc < 0)
 				pr_err("%s:%d Lens park failed.\n",
 					__func__, __LINE__);
 		}
-
+		#endif
 		rc = msm_actuator_vreg_control(a_ctrl, 0);
 		if (rc < 0) {
 			pr_err("%s failed %d\n", __func__, __LINE__);
